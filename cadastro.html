@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de cadastro</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body>
+
+  <style>
+    body {
+        background-color:antiquewhite;
+        padding-top: 20px; /* Espaçamento no topo do corpo da página */
+        
+        
+    }
+    h2{
+    text-align: center;
+}
+    .container {
+        background: antiquewhite;
+        padding: 20px; /* Espaçamento interno do container */
+        border-radius: 8px; /* Arredondamento das bordas do container */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra ao redor do container */
+        
+    }
+    
+    .botao{
+        text-align: center;
+    }
+    
+   
+    
+</style>
+<div class="container">
+<h2>Cadastro</h2> 
+
+<form id="formCadastro">
+    
+    <div class="form-group">
+        <label for="nome">Nome:</label>
+        <input type="name" class="form-control" id="nome" required>
+    </div>
+    <div class="form-group">
+        <label for="email">E-mail:</label>
+        <input type="email" class="form-control" id="email" required>
+    </div>
+    <div class="form-group">
+        <label for="dataNascimento">Data de Nascimento:</label>
+        <input type="date" class="form-control" id="dataNascimento" required>
+    </div>
+    <div class="form-group">
+			<label for="foto">Foto de Perfil:</label>
+			<input type="file" id="foto" name="foto" accept="image/*" required>
+	</div>
+    <div class="form-group">
+        <label for="senha">Senha:</label>
+        <input type="password" class="form-control" id="senha" required>
+    </div>
+    <div class="botao">
+    <button type="submit" class="btn btn-primary">Criar conta</button>
+    </div>
+</form>
+</div>
+
+
+</form>
+</div>
+
+<script type="module">
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";  
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+    
+         
+      const firebaseConfig = {
+        apiKey: "AIzaSyDrLxdSkoomfRptCd8sir0CwFJ1vI8LSOk",
+        authDomain: "projeto-pagina-web.firebaseapp.com",
+        projectId: "projeto-pagina-web",
+        storageBucket: "projeto-pagina-web.appspot.com",
+        messagingSenderId: "51325088556",
+        appId: "1:51325088556:web:e2f294e0c997be8319f289"
+      };
+    
+    
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getFirestore(app);
+    const storage = getStorage();
+    
+    
+    
+    document.getElementById('formCadastro').addEventListener('submit', async function (event) {
+            event.preventDefault();
+        
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const nome = document.getElementById('nome').value;
+            const dataNascimento = document.getElementById('dataNascimento').value;
+            const foto = document.getElementById('foto').files[0];
+        
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+                const userId = userCredential.user.uid;
+        
+                let fotoURL = '';
+                if (foto) {
+                    const fotoRef = ref(storage, 'perfil/' + userId);
+                    const uploadResult = await uploadBytes(fotoRef, foto);
+                    fotoURL = await getDownloadURL(uploadResult.ref);
+                }
+        
+                await setDoc(doc(db, 'usuarios', userId), {
+                    nome,
+                    dataNascimento,
+                    email,
+                    fotoURL
+                });
+        
+                alert('Cadastro realizado com sucesso!');
+            } catch (error) {
+                console.error('Erro no cadastro:', error);
+                alert('Erro no cadastro: ' + error.message);
+            }
+        });
+    
+</script>
+</body>
+</html>

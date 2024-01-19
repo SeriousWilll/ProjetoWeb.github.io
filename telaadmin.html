@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"> <!-- Inclui o CSS do Bootstrap para estilização -->
+
+</head>
+<body>
+
+    <div class="container"> <!-- Container Bootstrap para alinhamento de conteúdo -->
+        <h2>Usuários Cadastrados</h2> <!-- Título da seção -->
+        <div id="usuariosContainer" class="row">
+            <!-- Local onde os cards de usuários serão inseridos dinamicamente -->
+        </div>
+    </div>
+
+    
+    <!-- Importação e uso do Firebase para funcionalidades de backend -->
+    <script type="module">
+        // Importa as funções do Firebase
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Configuração do Firebase com suas credenciais
+        const firebaseConfig = {
+        apiKey: "AIzaSyDrLxdSkoomfRptCd8sir0CwFJ1vI8LSOk",
+        authDomain: "projeto-pagina-web.firebaseapp.com",
+        projectId: "projeto-pagina-web",
+        storageBucket: "projeto-pagina-web.appspot.com",
+        messagingSenderId: "51325088556",
+        appId: "1:51325088556:web:e2f294e0c997be8319f289"
+      };
+    
+
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Função assíncrona para carregar usuários do Firestore
+        async function carregarUsuarios() {
+            const querySnapshot = await getDocs(collection(db, "usuarios"));
+            const usuariosContainer = document.getElementById('usuariosContainer');
+            usuariosContainer.innerHTML = ''; // Limpa a lista atual
+
+            // Itera sobre cada usuário e cria um card para ele
+            querySnapshot.forEach((doc) => {
+                const usuario = doc.data();
+                const usuarioCard = `
+                    <div class="col-md-4">
+                        <div class="card">
+                            <img class="card-img-top" src="${usuario.fotoURL}" alt="Foto de perfil">
+                            <div class="card-body">
+                                <h5 class="card-title">${usuario.nome}</h5>
+                                <p class="card-text">Data de Nascimento: ${usuario.dataNascimento}</p>
+                                <p class="card-text">E-mail: ${usuario.email}</p>
+                                <button class="btn btn-primary">Editar</button>
+                                <button class="btn btn-danger">Excluir</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                usuariosContainer.innerHTML += usuarioCard; // Adiciona o card ao container
+            });
+        }
+
+        carregarUsuarios(); // Chama a função para carregar usuários ao carregar a página
+    </script>
+</body>
+</html>
